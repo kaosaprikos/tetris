@@ -82,20 +82,22 @@ allShapes = [Shape (makeSquares s) | s <- shapes]
 -- * Some simple functions
 
 -- ** A1
+-- ** A1
 emptyShape :: (Int, Int) -> Shape
-emptyShape = undefined
+emptyShape (x, y) = Shape(replicate x (replicate y Nothing))
+
 
 -- ** A2
 
 -- | The size (height and width) of a shape (rows x columns)
 shapeSize :: Shape -> (Int, Int)
-shapeSize = undefined
+shapeSize (Shape x) = (length x, length (x !! 0))
 
 -- ** A3
 
 -- | Count how many non-empty squares a shape contains
 blockCount :: Shape -> Int
-blockCount = undefined
+blockCount (Shape xs) = sum[1 | x <- (concat xs), x /= Nothing]
 
 -- * The Shape invariant
 
