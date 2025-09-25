@@ -126,7 +126,7 @@ instance Arbitrary Colour where
 -- ** A6
 -- | A random generator for shapes
 genShape :: Gen Shape
-genShape = undefined
+genShape = elements allShapes
 
 instance Arbitrary Shape where
   arbitrary = genShape
