@@ -89,7 +89,7 @@ rep a b = replicate a (replicate b Nothing)
 -- ** A1
 -- ** A1
 emptyShape :: (Int, Int) -> Shape
-emptyShape (x, y) = Shape(replicate x (replicate y Nothing))
+emptyShape (x, y) = Shape (rep a b)
 
 
 -- ** A2
