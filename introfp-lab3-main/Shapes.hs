@@ -96,7 +96,8 @@ emptyShape (x, y) = Shape (rep x y)
 
 -- | The size (height and width) of a shape (rows x columns)
 shapeSize :: Shape -> (Int, Int)
-shapeSize (Shape x) = (length x, length (x !! 0))
+shapeSize (Shape []) = (0,0)
+shapeSize (Shape x)  = (length x, length (x !! 0))
 
 -- ** A3
 
