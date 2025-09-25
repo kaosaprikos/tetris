@@ -111,9 +111,9 @@ blockCount (Shape xs) = sum[1 | x <- (concat xs), x /= Nothing]
 -- | Shape invariant (shapes have at least one row, at least one column,
 -- and are rectangular)
 prop_Shape :: Shape -> Bool
-prop_Shape (Shape rows)
-  | null rows = False
-  | otherwise = all (== length (head rows)) (map length rows)
+prop_Shape (Shape rs)
+  | null rs = False
+  | otherwise = all (== length (head rs)) (map length rs)
 
 -- * Test data generators
 
