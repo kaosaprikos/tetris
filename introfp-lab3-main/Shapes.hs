@@ -81,6 +81,11 @@ allShapes = [Shape (makeSquares s) | s <- shapes]
 
 -- * Some simple functions
 
+
+--Used for A1, A8, A9
+rep :: Int -> Int -> [[Maybe a]]
+rep a b = replicate a (replicate b Nothing)
+
 -- ** A1
 -- ** A1
 emptyShape :: (Int, Int) -> Shape
@@ -135,16 +140,16 @@ rotateShape (Shape x) = Shape (reverse(transpose x))
 -- ** A8
 -- | shiftShape adds empty squares above and to the left of the shape
 shiftShape :: (Int, Int) -> Shape -> Shape
-shiftShape (a, b) (Shape x) = Shape (right a (down b (x))) 
+shiftShape (a, b) (Shape x) = Shape (right b (down a (x))) 
   where right b x = map (replicate b Nothing ++) x
-        down  a x = (replicate a (replicate (length (x !! 0)) Nothing)) ++ x
+        down  a x = rep a (length (x !! 0)) ++ x
 
 -- ** A9
 -- | padShape adds empty square below and to the right of the shape
 padShape :: (Int, Int) -> Shape -> Shape
-padShape (a, b) (Shape x) = Shape (left a (up b (x))) 
+padShape (a, b) (Shape x) = Shape (left b (up a (x))) 
   where left b x = map (++ replicate b Nothing) x
-        up   a x = x ++ (replicate a (replicate (length (x !! 0)) Nothing))
+        up   a x = x ++ rep a (length (x !! 0))
 
 -- ** A10
 -- | pad a shape to a given size
