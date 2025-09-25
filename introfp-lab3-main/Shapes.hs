@@ -110,9 +110,8 @@ prop_Shape = undefined
 -- * Test data generators
 
 -- ** A5
--- | A random generator for colours
 genColour :: Gen Colour
-genColour = undefined
+genColour = elements [Black, Red, Green, Yellow, Blue, Purple, Cyan, Grey]
 
 instance Arbitrary Colour where
   arbitrary = genColour
@@ -130,22 +129,29 @@ instance Arbitrary Shape where
 -- ** A7
 -- | Rotate a shape 90 degrees
 rotateShape :: Shape -> Shape
-rotateShape = undefined
+rotateShape (Shape x) = Shape (reverse(transpose x))
+
 
 -- ** A8
 -- | shiftShape adds empty squares above and to the left of the shape
 shiftShape :: (Int, Int) -> Shape -> Shape
-shiftShape = undefined
+shiftShape (a, b) (Shape x) = Shape (right a (down b (x))) 
+  where right b x = map (replicate b Nothing ++) x
+        down  a x = (replicate a (replicate (length (x !! 0)) Nothing)) ++ x
 
 -- ** A9
 -- | padShape adds empty square below and to the right of the shape
 padShape :: (Int, Int) -> Shape -> Shape
-padShape = undefined
+padShape (a, b) (Shape x) = Shape (left a (up b (x))) 
+  where left b x = map (++ replicate b Nothing) x
+        up   a x = x ++ (replicate a (replicate (length (x !! 0)) Nothing))
 
 -- ** A10
 -- | pad a shape to a given size
 padShapeTo :: (Int, Int) -> Shape -> Shape
-padShapeTo = undefined
+padShapeTo (a, b) (Shape x) = padShape ((a-a'), (b-b')) (Shape x)
+  where 
+    (a', b') = shapeSize (Shape x)
 
 -- * Comparing and combining shapes
 
