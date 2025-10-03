@@ -165,15 +165,17 @@ padShapeTo (a, b) (Shape x) = padShape ((a-a'), (b-b')) (Shape x)
 B1
 -- | Test if two shapes overlap
 
-rowsOverlap :: Row -> Row -> Bool
-rowsOverlap r1 r2 = or $ zipWith bothFilled r1 r2
-  where
-    bothFilled :: Square -> Square -> Bool
-    bothFilled (Just _) (Just _) = True
-    bothFilled _ _               = False
 overlaps :: Shape -> Shape -> Bool
-overlaps (Shape rs1) (Shape rs2) = or $ zipWith rowsOverlap rs1 rs2
+overlaps (Shape r1) (Shape r2) = squareOverlaps (zip (concat r1) (concat r2))
   
+squareOverlaps :: [(Square, Square)] -> Bool 
+squareOverlaps r
+ | r == [] = False
+ | x /= Nothing && y /= Nothing = True
+ | otherwise = squareOverlaps (tail r)  
+   where (x, y) = (head r)
+
+
 -- ** B2
 -- | zipShapeWith, like 'zipWith' for lists
 zipShapeWith :: (Square -> Square -> Square) -> Shape -> Shape -> Shape
@@ -184,61 +186,21 @@ zipShapeWith f (Shape rs1) (Shape rs2) = Shape (zipWith (zipWith f) rs1 rs2)
 -- | Combine two shapes. The two shapes should not overlap.
 -- The resulting shape will be big enough to fit both shapes.
 combine :: Shape -> Shape -> Shape
-combine s1 s2
-  | overlaps s1p s2p = error "Shapes overlap!"
-  | otherwise = zipShapeWith combineSquares s1p s2p
-  where
+combine s1 s2 
+ | overlaps s1 s2 = error "error, shapes overlaping"
+ | otherwise = zipShapeWith combineSquare sh1 sh2
+    where 
     (h1, w1) = shapeSize s1
     (h2, w2) = shapeSize s2
     h = max h1 h2
     w = max w1 w2
-    s1p = padShapeTo (h, w) s1
-    s2p = padShapeTo (h, w) s2
-    combineSquares :: Square -> Square -> Square
-    combineSquares sq1 sq2 = sq1 <|> sq2
-
-drawTetris  :: Tetris -> Shape
-startTetris :: [Double] -> Tetris
-stepTeris   :: Action -> Tetris -> Maybe (Int,Tetris)
-
--- B4 
---Define a property that checks the following things:
-
---that the falling shape in the well satisfies the Shape Invariant (prop_Shape),
---that the size of the well is correct, i.e. equal to wellSize.
-prop_Tetris :: Tetris -> Bool
-prop_Tetris t = prop_Shape (fallingShape t)
-             && prop_Shape (well t)
-             && shapeSize (well t) == wellSize
+    sh1 = padShapeTo (h, w) s1
+    sh2 = padShapeTo (h, w) s2
 
 
---B5 
---Write a function that adds black walls around a given shape.
-addWalls :: Shape -> Shape
-addWalls shape = topBottomRow : map addWallsToRow shape ++ [topBottomRow]
-  where
-    width = length (head shape) + 2
-    topBottomRow = replicate width '#'
-    addWallsToRow row = '#' : row ++ "#"
---B6
-stepTetris :: Action -> Tetris -> Maybe (Int, Tetris)
-stepTetris action t = Just (0, t) -- incomplete !!!
-drawTetris :: Tetris -> Shape
-drawTetris t = addWalls combinedShape
-  where
-    shiftedFalling = shiftShape (pos t) (fallingShape t)
-    combinedShape = combine (well t) shiftedFalling
-
---B7
-move :: (Int, Int) -> Tetris -> Tetris
-move delta t = setPos newPos t
-  where
-    newPos = add delta (pos t)
-
---B8
-tick :: Tetris -> Maybe (Int, Tetris)
-tick t = Just (0, move (1, 0) t)
-stepTetris :: Action -> Tetris -> Maybe (Int, Tetris)
-stepTetris Tick t = tick t
-stepTetris _ t = Just (0, t) -- other actions not handled yet
+combineSquare :: Square -> Square -> Square 
+combineSquare (Just _) (Just _) = error "Patterns overlaping"
+combineSquare _ (Just x) = (Just x)
+combineSquare (Just x) _ = (Just x)
+combineSquare _ _ = Nothing
 
