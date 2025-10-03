@@ -63,16 +63,28 @@ place (v, s) = shiftShape v s
 
 -- | An invariant that startTetris and stepTetris should uphold
 prop_Tetris :: Tetris -> Bool
-prop_Tetris t = True -- incomplete !!!
+prop_Tetris t = prop_Shape shape1 && wellSize == shapeSize (well t)
+  where
+    (pos, shape1) = piece t
 
 -- | Add black walls around a shape
 addWalls :: Shape -> Shape
-addWalls s = s -- incomplete !!!
+addWalls (Shape r) = Shape (firstLast2 [blackList] (firstLast1 r))
+  where
+    blackList = replicate width (Just Black)
+    width = length (head r) + 2
+    firstLast1 r = map ([Just Black] ++) (map (++ [Just Black]) r) 
+    firstLast2 ad r = ad ++ r ++ ad
+
 
 -- | Visualize the current game state. This is what the user will see
 -- when playing the game.
 drawTetris :: Tetris -> Shape
-drawTetris (Tetris piece well _) = well -- incomplete !!!
+drawTetris (Tetris piece well _) = addWalls (combine (shiftShape pos pshape) well)
+  where
+    (pos, pshape) = piece
+    int2 = div wellWidth 2 - 1
+
 
 -- | The initial game state
 startTetris :: [Double] -> Tetris
@@ -84,5 +96,19 @@ startTetris rs = Tetris (startPosition, piece) well supply
 -- | React to input. The function returns 'Nothing' when it's game over,
 -- and @'Just' (n,t)@, when the game continues in a new state @t@.
 stepTetris :: Action -> Tetris -> Maybe (Int, Tetris)
-stepTetris action t = Just (0,t) -- incomplete !!!
+stepTetris (MoveLeft) t = Just (0, move (0,1) t)
+stepTetris (MoveRight) t = Just (0, move (0,1) t) 
+stepTetris (Rotate) (Tetris piece w s) = Just (0, Tetris (pos, rotateShape shape) w s)
+  where 
+    (pos, shape) = piece
+stepTetris _ t = tick t
 
+
+
+move :: (Int, Int) -> Tetris -> Tetris
+move pos1 (Tetris piece w s) = Tetris (add pos1 pos2, x) w s
+  where 
+    (pos2, x) = piece
+
+tick :: Tetris -> Maybe (Int, Tetris)
+tick t = Just (0, move (1,0) t)
