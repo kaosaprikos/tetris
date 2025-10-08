@@ -149,3 +149,34 @@ stepTetris MoveRight t = Just (0, movePiece 1 t)
 stepTetris Rotate t = Just (0, rotate t)
 stepTetris MoveDown t  = tick t
 stepTetris _ t        = tick t
+
+
+--C3
+-- We define a function that can be called from stepTetris to handle the MoveLeft and MoveRight actions
+-- movePiece takes an Int (-1 for left, 1 for right) and tries to move the piece horizontally
+movePiece :: Int -> Tetris -> Tetris
+movePiece dir t =
+  let moved = move (0, dir) t      -- move left or right
+  in if collision moved            -- check for collision
+     then t                        -- if collision, stay in old position
+     else moved                    -- else accept the new position
+
+
+--C4
+-- We define a function that rotates the falling piece
+rotate :: Tetris -> Tetris
+rotate (Tetris (pos, shape) well shapes) = Tetris (pos, rotateShape shape) well shapes 
+-- (pos, shape): the current falling piece, where pos is the piece’s position (row, col) inside the well,
+-- shape is the shape of the piece.
+-- well the current well (playing field).
+-- shapes the list of upcoming shapes (the supply).
+
+--C5
+--C6
+-- checks if the rotation causes collision 
+rotatePiece :: Tetris -> Tetris
+rotatePiece t =
+  let rotated = rotate t    
+  in if collision rotated
+     then t
+     else rotated
