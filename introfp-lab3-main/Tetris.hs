@@ -112,3 +112,40 @@ move pos1 (Tetris piece w s) = Tetris (add pos1 pos2, x) w s
 
 tick :: Tetris -> Maybe (Int, Tetris)
 tick t = Just (0, move (1,0) t)
+
+-- C1
+-- Check if the falling piece has collided with walls or well
+
+
+collision :: Tetris -> Bool
+collision (Tetris piece well _) =
+  let (row, col) = fst piece         -- original position of the piece
+      shape = snd piece             -- shape of original piece
+      -- gets dimensions of the shape and the well
+      (height, width) = shapeSize shape
+      (wellHeight, wellWidth) = shapeSize well
+      placedShape = place piece
+  in
+     col < 0                             -- too far left
+  || col + width > wellWidth             -- too far right
+  || row + height > wellHeight           -- too far down
+  || overlaps well placedShape           -- overlaps with existing well blocks
+
+-- Improved tick function with collision check
+tick :: Tetris -> Maybe (Int, Tetris)
+tick t =
+  let newTetris = move (1, 0) t          -- move piece down by one row
+  in if collision newTetris              -- check for collision
+     then dropNewPiece t                 -- if collision, drop the piece and add a new one
+     else Just (0, newTetris)
+
+
+--C2
+-- rewrite stepTetris to handle the MoveDown action
+
+stepTetris :: Action -> Tetris -> Maybe (Int, Tetris)
+stepTetris MoveLeft t  = Just (0, movePiece (-1) t)
+stepTetris MoveRight t = Just (0, movePiece 1 t)
+stepTetris Rotate t = Just (0, rotate t)
+stepTetris MoveDown t  = tick t
+stepTetris _ t        = tick t
