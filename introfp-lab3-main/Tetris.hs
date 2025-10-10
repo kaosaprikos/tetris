@@ -28,6 +28,8 @@ tetrisGame = Game
   , gameInvariant = prop_Tetris
   }
 
+shape1 :: Shape
+shape1 = Shape [[Just Red, Just Red, Nothing],[Nothing, Just Red, Just Red]]
 --------------------------------------------------------------------------------
 -- * The various parts of the Tetris game implementation
 
@@ -45,7 +47,7 @@ data Tetris = Tetris
 -- | The size of the well
 -- | The size of the well
 wellSize :: (Int, Int)
-wellSize   = (wellWidth, wellHeight)
+wellSize = (wellHeight, wellWidth)
 wellWidth  = 10
 wellHeight = 20
 
@@ -82,36 +84,36 @@ addWalls (Shape r) = Shape (firstLast2 [blackList] (firstLast1 r))
 drawTetris :: Tetris -> Shape
 drawTetris (Tetris piece well _) = addWalls (combine (shiftShape pos pshape) well)
   where
-    (pos, pshape) = piece
-    int2 = div wellWidth 2 - 1
+    (pos, pshape) = piece 
 
 
 -- | The initial game state
-startTetris :: [Double] -> Tetris
+{-startTetris :: [Double] -> Tetris
 startTetris rs = Tetris (startPosition, piece) well supply
  where
   well         = emptyShape wellSize
-  piece:supply = repeat (allShapes !! 1) -- incomplete !!!
-
+  piece:supply = repeat (allShapes !! 1) -}
+  
 -- | React to input. The function returns 'Nothing' when it's game over,
 -- and @'Just' (n,t)@, when the game continues in a new state @t@.
-stepTetris :: Action -> Tetris -> Maybe (Int, Tetris)
-stepTetris (MoveLeft) t = Just (0, move (0,1) t)
-stepTetris (MoveRight) t = Just (0, move (0,1) t) 
-stepTetris (Rotate) (Tetris piece w s) = Just (0, Tetris (pos, rotateShape shape) w s)
+{-stepTetris :: Action -> Tetris -> Maybe (Int, Tetris)
+stepTetris MoveLeft t = Just (0, move (0,-1) t)
+stepTetris MoveRight t = Just (0, move (0,1) t) 
+stepTetris Rotate (Tetris piece w s) = Just (0, Tetris (pos, rotateShape shape) w s)
   where 
     (pos, shape) = piece
-stepTetris _ t = tick t
+stepTetris MoveDown t  = tick t
+stepTetris _ t = tick t-}
 
-
+ 
 
 move :: (Int, Int) -> Tetris -> Tetris
 move pos1 (Tetris piece w s) = Tetris (add pos1 pos2, x) w s
   where 
     (pos2, x) = piece
 
-tick :: Tetris -> Maybe (Int, Tetris)
-tick t = Just (0, move (1,0) t)
+{-tick :: Tetris -> Maybe (Int, Tetris)
+tick t = Just (0, move (1,0) t)-}
 
 -- C1
 -- Check if the falling piece has collided with walls or well
@@ -181,8 +183,7 @@ rotatePiece t =
      then t
      else rotated
 
--- C7
-
+--C7
 dropNewPiece :: Tetris -> Maybe (Int, Tetris)
 dropNewPiece (Tetris piece well (x:xs)) 
 
