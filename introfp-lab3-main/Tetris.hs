@@ -180,6 +180,19 @@ rotatePiece t =
   in if collision rotated
      then t
      else rotated
+
+-- C8
+
+startTetris :: [Double] -> Tetris
+startTetris x      = Tetris (startPosition, piece) well supply
+startTetris (x:xs) = Tetris (startPosition, piece) well (x allShapes) 
+ where
+  well         = emptyShape wellSize
+  piece:supply = repeat (allShapes !! 1) 
+  x allShapes  = floor (fromIntegral (x allShapes)* double)
+
+x = floor (x * length allShapes)
+
 --C9
 isComplete :: Row -> Bool
 isComplete rw = all (/= Nothing) rw
