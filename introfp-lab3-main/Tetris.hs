@@ -180,3 +180,18 @@ rotatePiece t =
   in if collision rotated
      then t
      else rotated
+--C9
+isComplete :: Row -> Bool
+isComplete rw = all (/= Nothing) rw
+
+clearLines :: Shape -> (Int, Shape)
+clearLines (Shape rows) = 
+  let
+    isCompleterows = filter (not . emptyRow) rows      -- Filters the empty rows from well 
+    clearedCount = length rows - length isCompleterows -- How many rows are cleared 
+    (height, width) = shapeSize (Shape rows)           -- For getting shape dimensions
+    emptyRow = replicate wellWidth Nothing             -- Adds new empty rows to the well 
+    newRows = replicate clearedCount emptyRow ++ incompleteRows
+  in 
+    (clearedCount, Shape ) -- clearedCount is telling how many lines got removed 
+                           -- Shape newRows creats a new Shapes
