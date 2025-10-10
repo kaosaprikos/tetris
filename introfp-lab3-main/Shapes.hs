@@ -5,8 +5,8 @@ Copyright   : (c) TDA555/DIT441, Introduction to Functional Programming
 License     : BSD
 Maintainer  : alexg@chalmers.se
 Stability   : experimental
-Student names: Harsimat Kour, Alba Mori Wallin, Amanda Juarez Andino 
-Grupp nummer: 22
+Grroup      : 22
+Names       : Alba Mori Wallin, Harsimrat Kour, Amanda Juarez Andino
 -}
 
 module Shapes where
@@ -81,15 +81,14 @@ allShapes = [Shape (makeSquares s) | s <- shapes]
 
 -- * Some simple functions
 
-
 --Used for A1, A8, A9
 rep :: Int -> Int -> [[Maybe a]]
 rep a b = replicate a (replicate b Nothing)
 
--- ** A1
+
 -- ** A1
 emptyShape :: (Int, Int) -> Shape
-emptyShape (x, y) = Shape (rep x y)
+emptyShape (a, b) = Shape(rep a b)
 
 
 -- ** A2
@@ -97,7 +96,7 @@ emptyShape (x, y) = Shape (rep x y)
 -- | The size (height and width) of a shape (rows x columns)
 shapeSize :: Shape -> (Int, Int)
 shapeSize (Shape []) = (0,0)
-shapeSize (Shape x)  = (length x, length (x !! 0))
+shapeSize (Shape x) = (length x, length (head x))
 
 -- ** A3
 
@@ -111,9 +110,8 @@ blockCount (Shape xs) = sum[1 | x <- (concat xs), x /= Nothing]
 -- | Shape invariant (shapes have at least one row, at least one column,
 -- and are rectangular)
 prop_Shape :: Shape -> Bool
-prop_Shape (Shape rs)
-  | null rs = False
-  | otherwise = all (== length (head rs)) (map length rs)
+prop_Shape (Shape []) = False
+prop_Shape (Shape (x:xs)) = all (== length x) (map length xs) && length x /= 0
 
 -- * Test data generators
 
@@ -139,7 +137,6 @@ instance Arbitrary Shape where
 rotateShape :: Shape -> Shape
 rotateShape (Shape x) = Shape (reverse(transpose x))
 
-
 -- ** A8
 -- | shiftShape adds empty squares above and to the left of the shape
 shiftShape :: (Int, Int) -> Shape -> Shape
@@ -162,18 +159,19 @@ padShapeTo (a, b) (Shape x) = padShape ((a-a'), (b-b')) (Shape x)
     (a', b') = shapeSize (Shape x)
 
 -- * Comparing and combining shapes
-B1
--- | Test if two shapes overlap
 
+-- ** B1
+
+-- | Test if two shapes overlap
 overlaps :: Shape -> Shape -> Bool
 overlaps (Shape r1) (Shape r2) = squareOverlaps (zip (concat r1) (concat r2))
   
 squareOverlaps :: [(Square, Square)] -> Bool 
-squareOverlaps r
- | r == [] = False
+squareOverlaps list
+ | list == [] = False
  | x /= Nothing && y /= Nothing = True
- | otherwise = squareOverlaps (tail r)  
-   where (x, y) = (head r)
+ | otherwise = squareOverlaps (tail list)  
+   where (x, y) = head list
 
 
 -- ** B2
@@ -199,8 +197,14 @@ combine s1 s2
 
 
 combineSquare :: Square -> Square -> Square 
-combineSquare (Just _) (Just _) = error "Patterns overlaping"
+combineSquare (Just _) (Just _) = error "Shapes overlaping"
 combineSquare _ (Just x) = (Just x)
 combineSquare (Just x) _ = (Just x)
 combineSquare _ _ = Nothing
+
+
+
+
+
+
 
