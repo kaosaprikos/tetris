@@ -181,8 +181,20 @@ rotatePiece t =
      then t
      else rotated
 
--- C8
+-- C7
 
+dropNewPiece :: Tetris -> Maybe (Int, Tetris)
+dropNewPiece (Tetris piece well (x:xs)) 
+
+ | overlaps newShape well = Nothing
+ | otherwise = Just (n, (Tetris newPiece newWell xs))
+  where  
+    newShape = shiftShape startPosition x
+    newPiece = (startPosition, x)
+    newWell = (combine clearedWell (place (piece)))
+    (n, clearedWell) = clearLines well
+
+--C8
 startTetris :: [Double] -> Tetris
 startTetris rs = Tetris (startPosition, piece) well list
  where
@@ -198,18 +210,23 @@ shapeList (x:xs)
   where  
     f x = floor (fromIntegral (length allShapes) * x) 
 
+ 
+
 --C9
+
 isComplete :: Row -> Bool
 isComplete rw = all (/= Nothing) rw
 
 clearLines :: Shape -> (Int, Shape)
 clearLines (Shape rows) = 
   let
-    isCompleterows = filter (not . emptyRow) rows      -- Filters the empty rows from well 
+    isCompleterows = filter (not.(isComplete)) rows      -- Filters the empty rows from well 
     clearedCount = length rows - length isCompleterows -- How many rows are cleared 
-    (height, width) = shapeSize (Shape rows)           -- For getting shape dimensions
     emptyRow = replicate wellWidth Nothing             -- Adds new empty rows to the well 
-    newRows = replicate clearedCount emptyRow ++ incompleteRows
+    newRows = replicate clearedCount emptyRow ++ isCompleterows
   in 
-    (clearedCount, Shape newRows) -- clearedCount is telling how many lines got removed 
-                           -- Shape newRows creats a new Shapes
+    (clearedCount, Shape newRows)
+
+      
+                        
+ 
