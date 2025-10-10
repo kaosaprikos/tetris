@@ -211,5 +211,5 @@ clearLines (Shape rows) =
     emptyRow = replicate wellWidth Nothing             -- Adds new empty rows to the well 
     newRows = replicate clearedCount emptyRow ++ incompleteRows
   in 
-    (clearedCount, Shape ) -- clearedCount is telling how many lines got removed 
+    (clearedCount, Shape newRows) -- clearedCount is telling how many lines got removed 
                            -- Shape newRows creats a new Shapes
