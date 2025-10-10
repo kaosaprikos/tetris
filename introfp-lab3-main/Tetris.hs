@@ -184,14 +184,19 @@ rotatePiece t =
 -- C8
 
 startTetris :: [Double] -> Tetris
-startTetris x      = Tetris (startPosition, piece) well supply
-startTetris (x:xs) = Tetris (startPosition, piece) well (x allShapes) 
+startTetris rs = Tetris (startPosition, piece) well list
  where
-  well         = emptyShape wellSize
-  piece:supply = repeat (allShapes !! 1) 
-  x allShapes  = floor (fromIntegral (x allShapes)* double)
+  well       = emptyShape wellSize
+  piece:list = shapeList rs
 
-x = floor (x * length allShapes)
+
+shapeList :: [Double] -> [Shape]
+shapeList [] = []
+shapeList (x:xs)
+ | f x == length allShapes = (allShapes !! (f x - 1)) : shapeList xs
+ | otherwise = (allShapes !! f x) : shapeList xs
+  where  
+    f x = floor (fromIntegral (length allShapes) * x) 
 
 --C9
 isComplete :: Row -> Bool
