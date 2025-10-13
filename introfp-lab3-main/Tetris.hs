@@ -1,3 +1,4 @@
+
 {- |
 Module      : Tetris
 Description : The Tetris game (main module)
@@ -63,22 +64,33 @@ add :: Pos -> Pos -> Pos
 place :: Piece -> Shape
 place (v, s) = shiftShape v s
 
--- | An invariant that startTetris and stepTetris should uphold
+--B4
+
+--a property that checks the following things:
+  --that the falling shape in the well satisfies the Shape Invariant (prop_Shape),
+  --that the size of the well is correct, i.e. equal to wellSize.
 prop_Tetris :: Tetris -> Bool
 prop_Tetris t = prop_Shape shape1 && wellSize == shapeSize (well t)
   where
     (pos, shape1) = piece t
 
+
+--B5
 -- | Add black walls around a shape
 addWalls :: Shape -> Shape
 addWalls (Shape r) = Shape (firstLast2 [blackList] (firstLast1 r))
   where
     blackList = replicate width (Just Black)
     width = length (head r) + 2
+    --length (head r) = width of the first row
+    -- + 2 = add one black cell on each side (left + right)
     firstLast1 r = map ([Just Black] ++) (map (++ [Just Black]) r) 
+    --map (++ [Just Black]) r → adds black on the right
+    --map ([Just Black] ++) ... → adds black on the left
     firstLast2 ad r = ad ++ r ++ ad
+    -- This adds one black row at the top and one at the bottom
 
-
+--B6
 -- | Visualize the current game state. This is what the user will see
 -- when playing the game.
 drawTetris :: Tetris -> Shape
@@ -106,23 +118,26 @@ stepTetris MoveDown t  = tick t
 stepTetris _ t = tick t-}
 
  
-
+--B7
+--  a function to move the falling piece
 move :: (Int, Int) -> Tetris -> Tetris
 move pos1 (Tetris piece w s) = Tetris (add pos1 pos2, x) w s
   where 
     (pos2, x) = piece
 
+
+--B8
+-- the piece should fall one row per tick
 {-tick :: Tetris -> Maybe (Int, Tetris)
 tick t = Just (0, move (1,0) t)-}
 
 -- C1
 -- Check if the falling piece has collided with walls or well
 
-
 collision :: Tetris -> Bool
 collision (Tetris piece well _) =
   let (row, col) = fst piece         -- original position of the piece
-      shape = snd piece             -- shape of original piece
+      shape = snd piece              -- shape of original piece
       -- gets dimensions of the shape and the well
       (height, width) = shapeSize shape
       (wellHeight, wellWidth) = shapeSize well
@@ -146,9 +161,9 @@ tick t =
 -- rewrite stepTetris to handle the MoveDown action
 
 stepTetris :: Action -> Tetris -> Maybe (Int, Tetris)
-stepTetris MoveLeft t  = Just (0, movePiece (-1) t)
+stepTetris MoveLeft t  = Just (0, movePiece (-1) t)  
 stepTetris MoveRight t = Just (0, movePiece 1 t)
-stepTetris Rotate t = Just (0, rotate t)
+stepTetris Rotate t = Just (0, rotatePiece t)
 stepTetris MoveDown t  = tick t
 stepTetris _ t        = tick t
 
@@ -184,6 +199,7 @@ rotatePiece t =
      else rotated
 
 --C7
+-- a function that handles the case when the falling piece can’t move any further down.
 dropNewPiece :: Tetris -> Maybe (Int, Tetris)
 dropNewPiece (Tetris piece well (x:xs)) 
 
@@ -192,21 +208,28 @@ dropNewPiece (Tetris piece well (x:xs))
   where  
     newShape = shiftShape startPosition x
     newPiece = (startPosition, x)
-    newWell = (combine clearedWell (place (piece)))
-    (n, clearedWell) = clearLines well
+    newWell = (combine clearedWell (place (piece))) 
+    (n, clearedWell) = clearLines well 
+
+
 
 --C8
+--Modify the startTetris function so that it uses this parameter to create a list of random shapes for the supply.
 startTetris :: [Double] -> Tetris
 startTetris rs = Tetris (startPosition, piece) well list
  where
-  well       = emptyShape wellSize
-  piece:list = shapeList rs
+  well         = emptyShape wellSize -- Creates an empty grid (the Tetris well) of a given size
+  piece:list   = shapeList rs -- shapeList rs returns a list of random shapes, and the pattern piece:list splits it into:
+                              -- piece = the first shape (the one falling now)
+                              -- list = the rest (the queue of upcoming shapes)
 
 
 shapeList :: [Double] -> [Shape]
 shapeList [] = []
 shapeList (x:xs)
- | f x == length allShapes = (allShapes !! (f x - 1)) : shapeList xs
+ | f x == length allShapes = (allShapes !! (f x - 1)) : shapeList xs 
+ -- If f x happens to equal length allShapes (which could happen if x == 1.0),
+ -- it subtracts 1 to avoid going out of bounds.
  | otherwise = (allShapes !! f x) : shapeList xs
   where  
     f x = floor (fromIntegral (length allShapes) * x) 
@@ -214,19 +237,20 @@ shapeList (x:xs)
  
 
 --C9
+-- a function that removes completed lines from the well.
 
 isComplete :: Row -> Bool
-isComplete rw = all (/= Nothing) rw
+isComplete rw = all (/= Nothing) rw  -- Check that every element in the row is not equal to Nothing
 
 clearLines :: Shape -> (Int, Shape)
 clearLines (Shape rows) = 
   let
-    isCompleterows = filter (not.(isComplete)) rows      -- Filters the empty rows from well 
-    clearedCount = length rows - length isCompleterows -- How many rows are cleared 
-    emptyRow = replicate wellWidth Nothing             -- Adds new empty rows to the well 
-    newRows = replicate clearedCount emptyRow ++ isCompleterows
+    isCompleterows = filter (not.(isComplete)) rows      -- this line keeps only incomplete rows (removes the filled ones)
+    clearedCount = length rows - length isCompleterows   -- How many rows are cleared 
+    emptyRow = replicate wellWidth Nothing               -- Adds new empty rows to the well 
+    newRows = replicate clearedCount emptyRow ++ isCompleterows -- adds the rows that were removed 
   in 
-    (clearedCount, Shape newRows)
+    (clearedCount, Shape newRows)  -- returns how many rows were removed and updates the well
 
       
                         
