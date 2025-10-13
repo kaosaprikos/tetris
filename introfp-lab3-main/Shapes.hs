@@ -87,13 +87,15 @@ rep a b = replicate a (replicate b Nothing)
 
 
 -- ** A1
+-- function that returns an empty shape of a given size,
 emptyShape :: (Int, Int) -> Shape
 emptyShape (a, b) = Shape(rep a b)
 
 
 -- ** A2
-
+-- function that returns the size of a shape, i.e. the number of rows and columns in a pair.
 -- | The size (height and width) of a shape (rows x columns)
+
 shapeSize :: Shape -> (Int, Int)
 shapeSize (Shape []) = (0,0)
 shapeSize (Shape x) = (length x, length (head x))
@@ -103,6 +105,7 @@ shapeSize (Shape x) = (length x, length (head x))
 -- | Count how many non-empty squares a shape contains
 blockCount :: Shape -> Int
 blockCount (Shape xs) = sum[1 | x <- (concat xs), x /= Nothing]
+-- concat takes a list of lists ([[a]]) and “flattens” them into a single list ([a]).
 
 -- * The Shape invariant
 
@@ -112,10 +115,17 @@ blockCount (Shape xs) = sum[1 | x <- (concat xs), x /= Nothing]
 prop_Shape :: Shape -> Bool
 prop_Shape (Shape []) = False
 prop_Shape (Shape (x:xs)) = all (== length x) (map length xs) && length x /= 0
+-- map length gives a list of the lengths of all remaining rows.
+-- all (== length x) (map length xs)
+-- checks that every row has the same length as the first row.
+-- && length x /= 0
+-- additionally checks that the first row isn’t empty.
+
 
 -- * Test data generators
 
 -- ** A5
+--  random generator for colours
 genColour :: Gen Colour
 genColour = elements [Black, Red, Green, Yellow, Blue, Purple, Cyan, Grey]
 
@@ -136,6 +146,9 @@ instance Arbitrary Shape where
 -- | Rotate a shape 90 degrees
 rotateShape :: Shape -> Shape
 rotateShape (Shape x) = Shape (reverse(transpose x))
+-- 'reverse' reverses the order of elements in a list.
+-- Here, it’s applied to the rows of the transposed matrix.
+-- So after transposing, reversing the rows gives a 90° clockwise rotation.
 
 -- ** A8
 -- | shiftShape adds empty squares above and to the left of the shape
@@ -165,9 +178,10 @@ padShapeTo (a, b) (Shape x) = padShape ((a-a'), (b-b')) (Shape x)
 -- | Test if two shapes overlap
 overlaps :: Shape -> Shape -> Bool
 overlaps (Shape r1) (Shape r2) = squareOverlaps (zip (concat r1) (concat r2))
+-- zip takes two lists and combines them into one list of pairs (tuples).
   
 squareOverlaps :: [(Square, Square)] -> Bool 
-squareOverlaps list
+squareOverlaps list          -- vad är list?
  | list == [] = False
  | x /= Nothing && y /= Nothing = True
  | otherwise = squareOverlaps (tail list)  
@@ -178,6 +192,7 @@ squareOverlaps list
 -- | zipShapeWith, like 'zipWith' for lists
 zipShapeWith :: (Square -> Square -> Square) -> Shape -> Shape -> Shape
 zipShapeWith f (Shape rs1) (Shape rs2) = Shape (zipWith (zipWith f) rs1 rs2)
+-- zipWith is like zip, but instead of making pairs, it applies a function to each pair.
 
 
 -- ** B3
@@ -201,10 +216,3 @@ combineSquare (Just _) (Just _) = error "Shapes overlaping"
 combineSquare _ (Just x) = (Just x)
 combineSquare (Just x) _ = (Just x)
 combineSquare _ _ = Nothing
-
-
-
-
-
-
-
