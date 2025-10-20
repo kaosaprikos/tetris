@@ -177,11 +177,16 @@ padShapeTo (a, b) (Shape x) = padShape ((a-a'), (b-b')) (Shape x)
 
 -- | Test if two shapes overlap
 overlaps :: Shape -> Shape -> Bool
-overlaps (Shape r1) (Shape r2) = squareOverlaps (zip (concat r1) (concat r2))
--- zip takes two lists and combines them into one list of pairs (tuples).
-  
-squareOverlaps :: [(Square, Square)] -> Bool 
-squareOverlaps list          -- vad är list?
+overlaps (Shape r1) (Shape r2) = rowsOverlaps (zip r1 r2)
+ where
+    rowsOverlaps :: [(Row,Row)] -> Bool
+    rowsOverlaps [] = False  
+    rowsOverlaps ((y,x):xs) 
+     | squareOverlaps (zip y x) = True
+      | otherwise = rowsOverlaps xs
+
+squareOverlaps :: [(Square, Square)] -> Bool
+squareOverlaps list
  | list == [] = False
  | x /= Nothing && y /= Nothing = True
  | otherwise = squareOverlaps (tail list)  
