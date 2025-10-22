@@ -203,13 +203,13 @@ rotatePiece t =
 dropNewPiece :: Tetris -> Maybe (Int, Tetris)
 dropNewPiece (Tetris piece well (x:xs)) 
 
- | overlaps newShape well = Nothing
- | otherwise = Just (n, (Tetris newPiece newWell xs))
+ | overlaps newShape clearedWell = Nothing
+ | otherwise = Just (n, (Tetris newPiece clearedWell xs))
   where  
     newShape = shiftShape startPosition x
     newPiece = (startPosition, x)
-    newWell = (combine clearedWell (place (piece))) 
-    (n, clearedWell) = clearLines well 
+    newWell = (combine well (place (piece))) 
+    (n, clearedWell) = clearLines newWell 
 
 
 
